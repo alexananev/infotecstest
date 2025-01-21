@@ -110,8 +110,4 @@ namespace logwriter
             fout.close();
         }
     }
-
-    void LogWriter::logMessage(std::string msg, int logLvl)
-    {
-    }
 }

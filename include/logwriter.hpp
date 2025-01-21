@@ -27,8 +27,6 @@ namespace logwriter
     private:
         std::string fileName;
         std::string defaultLogLevel = loggerLevels.INFO;
-        // fileDescriptor
-        void logMessage(std::string message, int logLvl);
 
     public:
         LogWriter(std::string fileName, std::string defaultLogLvl);
