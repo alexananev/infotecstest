@@ -1,0 +1,6 @@
+*.out
+.vscode
+*.so
+*.dll
+*.log
+test.cpp
