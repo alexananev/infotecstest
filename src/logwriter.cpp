@@ -10,7 +10,9 @@ namespace logwriter
 {
     bool LogWriter::isLogLevel(std::string logLvl)
     {
+        /// Приводим к верхнему регистру
         std::transform(logLvl.begin(), logLvl.end(), logLvl.begin(), ::toupper);
+        /// Ищем лог в доступных уровнях логирования
         auto myIt = loggerLevels.mapped.find(logLvl);
         if (myIt != loggerLevels.mapped.end())
         {
@@ -21,8 +23,11 @@ namespace logwriter
 
     LogWriter::LogWriter(std::string fileName, std::string defaultLogLvl)
     {
+        /// устанавливаем параметры
         this->fileName = fileName;
         this->defaultLogLevel = this->setLogLevel(defaultLogLvl);
+
+        /// Проверяем возможность создания файла лога
         std::ofstream fout(this->fileName);
         if (fout.is_open())
         {
@@ -31,6 +36,7 @@ namespace logwriter
         }
         else
         {
+            /// если не удалось - завершаем программу
             throw std::runtime_error("File not opened");
         }
         fout.close();
@@ -43,9 +49,11 @@ namespace logwriter
 
     std::string LogWriter::getFormattedTime()
     {
+        /// Получаем время
         std::time_t t = std::time(nullptr);
         char formatted[128];
 
+        /// И записываем его в строку
         if (std::strftime(formatted, sizeof(formatted), LOG_TIME_FORMAT, std::localtime(&t)))
         {
             return formatted;
@@ -57,6 +65,8 @@ namespace logwriter
     std::string LogWriter::setLogLevel(std::string logLvl)
     {
         std::transform(logLvl.begin(), logLvl.end(), logLvl.begin(), ::toupper);
+
+        /// Если передан валидный уровень лога, перезаписываем его
         if (this->isLogLevel(logLvl))
         {
             this->defaultLogLevel = logLvl;
@@ -66,6 +76,7 @@ namespace logwriter
 
     void LogWriter::logMessage(std::string msg)
     {
+        /// Если уровень важности сообщения не передан, записываем с уровнем по умолчанию
         this->logMessage(msg, this->defaultLogLevel, this->getFormattedTime());
     }
 
@@ -76,11 +87,14 @@ namespace logwriter
 
     void LogWriter::logMessage(std::string msg, std::string logLvl, std::string fTime)
     {
+        /// Проверяем валидность уровня важности сообщения
         std::transform(logLvl.begin(), logLvl.end(), logLvl.begin(), ::toupper);
         if (this->isLogLevel(logLvl))
         {
+            /// Проверяем не низкий ли уровень у сообщения
             if (loggerLevels.mapped[logLvl] >= loggerLevels.mapped[this->defaultLogLevel])
             {
+                /// Проверяем, открылся ли файл лога, и записываем сообщение
                 std::ofstream fout(this->fileName, std::ios::app);
                 if (fout.is_open())
                 {
@@ -93,14 +107,14 @@ namespace logwriter
                 }
                 fout.close();
             }
-            // this->logMessage(msg, loggerLevels.mapped[logLvl]);
         }
         else
         {
+            /// Если передан невалидный уровень лога, пишем под UNDEFINED
             std::ofstream fout(this->fileName, std::ios::app);
             if (fout.is_open())
             {
-                fout << "[<TIME>]: UNDEFINED: "
+                fout << "[" << fTime << "] " << "UNDEFINED: "
                      << msg << std::endl;
             }
             else
